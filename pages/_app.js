@@ -1,6 +1,6 @@
 // pages/_app.js
 import React from "react";
-import { ThirdwebProvider } from "@thirdweb/react";
+import { ThirdwebProvider } from "thirdweb/react";
 import { createThirdwebClient } from "thirdweb";
 import { baseSepolia } from "thirdweb/chains";
 import "../styles/globals.css"; // harmless; we'll add this file later (or remove if you prefer)
