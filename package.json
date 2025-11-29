@@ -1,0 +1,17 @@
+{
+  "name": "mint-page",
+  "version": "1.0.0",
+  "private": true,
+  "scripts": {
+    "dev": "next dev",
+    "build": "next build",
+    "start": "next start"
+  },
+  "dependencies": {
+    "next": "13.x",
+    "react": "18.x",
+    "react-dom": "18.x",
+    "@thirdweb/react": "^5.0.0",
+    "thirdweb": "^5.0.0"
+  }
+}
