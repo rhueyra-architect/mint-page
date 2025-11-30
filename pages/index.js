@@ -6,6 +6,7 @@ import { ConnectButton, useActiveAccount } from "thirdweb/react";
 import { createThirdwebClient, getContract } from "thirdweb";
 import { claimTo } from "thirdweb/extensions/erc1155";
 import { baseSepolia } from "thirdweb/chains";
+import { ethers } from "ethers";
 
 /**
  * Client created from the clientId saved in env.
@@ -52,67 +53,41 @@ function ClaimNFT() {
   
 const handleClaim = async () => {
   try {
+    if (!window?.ethereum) {
+      alert("No Web3 wallet found (MetaMask).");
+      return;
+    }
     if (!account) {
       alert("Please connect your wallet first.");
       return;
     }
-    if (!client) {
-      alert("Client not initialized.");
-      return;
-    }
 
-    // load a contract instance tied to the client (which is connected to ThirdwebProvider)
-    const liveContract = await getContract({
-      client,
-      chain: baseSepolia,
-      address: CONTRACT_ADDRESS,
-    });
+    // minimal ABI for claimTo(address,uint256,uint256)
+    const ABI = [
+      "function claimTo(address to, uint256 tokenId, uint256 quantity) external",
+    ];
 
-    if (!liveContract) {
-      alert("Unable to load contract. Check CONTRACT_ADDRESS env.");
-      return;
-    }
+    // ensure token id as BigInt / string
+    const tokenId = typeof TOKEN_ID === "bigint" ? TOKEN_ID : BigInt(TOKEN_ID || 0);
 
-    const tokenIdToClaim = typeof TOKEN_ID === "bigint" ? TOKEN_ID : BigInt(TOKEN_ID);
+    // request accounts and create signer
+    const provider = new ethers.providers.Web3Provider(window.ethereum, "any");
+    await provider.send("eth_requestAccounts", []);
+    const signer = provider.getSigner();
 
-    // Try the common on-chain call patterns in order until one actually sends a transaction:
-    // 1) direct wrapper method (contract.claimTo)
-    // 2) namespaced ERC1155 wrapper (contract.erc1155.claimTo)
-    // 3) helper function from extensions (claimTo({...}))
-    // 4) fallback to generic contract.call("claimTo", [...]) if exposed
-    // Each attempt awaits the tx so a wallet popup should appear when the signer is required.
-    let tx;
-    if (typeof liveContract.claimTo === "function") {
-      tx = await liveContract.claimTo({
-        to: account.address,
-        tokenId: tokenIdToClaim,
-        quantity: 1n,
-      });
-    } else if (liveContract.erc1155 && typeof liveContract.erc1155.claimTo === "function") {
-      tx = await liveContract.erc1155.claimTo({
-        to: account.address,
-        tokenId: tokenIdToClaim,
-        quantity: 1n,
-      });
-    } else if (typeof claimTo === "function") {
-      tx = await claimTo({
-        contract: liveContract,
-        to: account.address,
-        tokenId: tokenIdToClaim,
-        quantity: 1n,
-      });
-    } else if (typeof liveContract.call === "function") {
-      // fallback generic low-level call (some wrappers expose a generic call method)
-      tx = await liveContract.call("claimTo", [account.address, tokenIdToClaim, 1n]);
-    } else {
-      alert("This contract wrapper doesn't expose a signer method for claimTo. Check SDK version.");
-      return;
-    }
+    // create contract instance with signer (this will use the connected wallet)
+    const signerContract = new ethers.Contract(CONTRACT_ADDRESS, ABI, signer);
 
-    console.log("Claim transaction/result:", tx);
-    alert("🔥 THE FIRST FLAME HAS BEEN CLAIMED 🔥");
+    // send transaction -> this will open the wallet popup
+    const tx = await signerContract.claimTo(await signer.getAddress(), tokenId, 1);
+    console.log("tx sent:", tx.hash);
+
+    // wait for confirmation (optional but ensures mint finished)
+    await tx.wait();
+    console.log("tx confirmed:", tx.hash);
+    alert("🔥 THE FIRST FLAME HAS BEEN CLAIMED (on-chain) 🔥");
   } catch (err) {
-    console.error("Claim error:", err);
+    console.error("Claim error (ethers):", err);
     alert("Claim failed: " + (err?.message || String(err)));
   }
 };
