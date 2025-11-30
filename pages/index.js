@@ -41,11 +41,7 @@ export default function Home() {
 function ClaimNFT() {
   const account = useActiveAccount();
 
-  // load contract
-  const contract = getContract({
-    client,
-    chain: baseSepolia,
-    address: CONTRACT_ADDRESS,
+ 
   });
 
   const handleClaim = async () => {
@@ -55,6 +51,12 @@ function ClaimNFT() {
       return;
     }
 
+       const contract = await getContract({
+    client,
+    chain: baseSepolia,
+    address: CONTRACT_ADDRESS,
+       });
+        
   
       await claimTo({
         contract,
