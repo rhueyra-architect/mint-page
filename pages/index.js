@@ -56,14 +56,12 @@ const handleClaim = async () => {
       alert("Please connect your wallet first.");
       return;
     }
-
-    // ensure client is available
     if (!client) {
       alert("Client not initialized.");
       return;
     }
 
-    // get contract using the standalone helper (not client.getContract)
+    // load a contract instance tied to the client (which is connected to ThirdwebProvider)
     const liveContract = await getContract({
       client,
       chain: baseSepolia,
@@ -77,22 +75,47 @@ const handleClaim = async () => {
 
     const tokenIdToClaim = typeof TOKEN_ID === "bigint" ? TOKEN_ID : BigInt(TOKEN_ID);
 
-    // trigger on-chain claim (wallet popup -> tx)
-    const tx = await claimTo({
-      contract: liveContract,
-      to: account.address,
-      tokenId: tokenIdToClaim,
-      quantity: 1n,
-    });
+    // Try the common on-chain call patterns in order until one actually sends a transaction:
+    // 1) direct wrapper method (contract.claimTo)
+    // 2) namespaced ERC1155 wrapper (contract.erc1155.claimTo)
+    // 3) helper function from extensions (claimTo({...}))
+    // 4) fallback to generic contract.call("claimTo", [...]) if exposed
+    // Each attempt awaits the tx so a wallet popup should appear when the signer is required.
+    let tx;
+    if (typeof liveContract.claimTo === "function") {
+      tx = await liveContract.claimTo({
+        to: account.address,
+        tokenId: tokenIdToClaim,
+        quantity: 1n,
+      });
+    } else if (liveContract.erc1155 && typeof liveContract.erc1155.claimTo === "function") {
+      tx = await liveContract.erc1155.claimTo({
+        to: account.address,
+        tokenId: tokenIdToClaim,
+        quantity: 1n,
+      });
+    } else if (typeof claimTo === "function") {
+      tx = await claimTo({
+        contract: liveContract,
+        to: account.address,
+        tokenId: tokenIdToClaim,
+        quantity: 1n,
+      });
+    } else if (typeof liveContract.call === "function") {
+      // fallback generic low-level call (some wrappers expose a generic call method)
+      tx = await liveContract.call("claimTo", [account.address, tokenIdToClaim, 1n]);
+    } else {
+      alert("This contract wrapper doesn't expose a signer method for claimTo. Check SDK version.");
+      return;
+    }
 
-    console.log("claim tx:", tx);
+    console.log("Claim transaction/result:", tx);
     alert("🔥 THE FIRST FLAME HAS BEEN CLAIMED 🔥");
   } catch (err) {
     console.error("Claim error:", err);
     alert("Claim failed: " + (err?.message || String(err)));
   }
 };
-
 
   return (
     <div style={styles.claimBox}>
