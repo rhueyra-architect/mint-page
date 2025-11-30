@@ -48,103 +48,58 @@ function ClaimNFT() {
     address: CONTRACT_ADDRESS,
   });
 
-  const handleClaim = async () => {
+  // pages/index.js  — REPLACE handleClaim() with the block below
+import { useSDK, useActiveAccount } from 'thirdweb/react'; // <- ensure these imports exist at the top
+import { claimTo } from 'thirdweb/extensions/erc1155';      // <- ensure this import exists at the top
+
+// ... inside your component:
+const sdk = useSDK();
+const account = useActiveAccount();
+
+// token settings used by your contract (set tokenId to the correct id if different)
+const TOKEN_ID = 0; // update if your token id is different
+
+const handleClaim = async () => {
+  try {
+    // 1) check wallet connected
     if (!account) {
       alert("Please connect your wallet first.");
       return;
     }
-   
-  try {
-  if (!contract) {
-    alert("Contract not loaded");
-    return;
-  }
 
-      // claim 1 token to the connected account
-      await claimTo({
-        contract,
-        to: account.address,
-        tokenId: TOKEN_ID,
-        quantity: 1n,
-      });
-
-      alert("⚜️ THE FIRST FLAME CLAIMED ⚜️");
-    } catch (err) {
-      console.error("Claim error:", err);
-      // try to show meaningful message
-      const msg = (err && err.message) ? err.message : String(err);
-      alert("Claim failed — check console. " + msg);
+    // 2) check SDK ready
+    if (!sdk) {
+      alert("SDK not ready yet. Please wait a moment and try again.");
+      return;
     }
-  };
 
-  return (
-    <div style={styles.claimBox}>
-      <div style={{ marginBottom: 18 }}>
-        <ConnectButton client={client} />
-      </div>
+    // 3) get contract address from env
+    const CONTRACT_ADDRESS = process.env.NEXT_PUBLIC_CONTRACT_ADDRESS;
+    if (!CONTRACT_ADDRESS) {
+      alert("Contract address missing in environment variables.");
+      return;
+    }
 
-      {account && (
-        <>
-          <div style={styles.address}>{shorten(account.address)}</div>
-          <button style={styles.claimButton} onClick={handleClaim}>
-            Claim NFT
-          </button>
-        </>
-      )}
+    // 4) get the live contract instance (async)
+    const contract = await sdk.getContract(CONTRACT_ADDRESS);
+    if (!contract) {
+      alert("Contract not found. Check the contract address.");
+      return;
+    }
 
-      {!account && (
-        <div style={{ color: "#aaa", marginTop: 8 }}>Connect a wallet to claim</div>
-      )}
-    </div>
-  );
-}
+    // 5) call the real mint (claim) transaction
+    await claimTo({
+      contract,
+      to: account.address,
+      tokenId: TOKEN_ID,
+      quantity: 1n, // BigInt for 1 token
+    });
 
-/* Small helper to shorten addresses for the UI */
-function shorten(addr = "") {
-  if (!addr) return "";
-  return addr.slice(0, 6) + "…" + addr.slice(-4);
-}
-
-/* Minimal inline styles (feel free to replace with your globals.css) */
-const styles = {
-  page: {
-    minHeight: "100vh",
-    display: "flex",
-    alignItems: "center",
-    justifyContent: "center",
-    background: "#090808",
-    color: "#e9e6e2",
-    padding: 24,
-  },
-  container: {
-    width: "100%",
-    maxWidth: 960,
-    padding: 24,
-  },
-  title: {
-    fontFamily: "serif",
-    fontSize: 36,
-    marginBottom: 24,
-    letterSpacing: 1.2,
-  },
-  claimBox: {
-    display: "flex",
-    flexDirection: "column",
-    alignItems: "flex-start",
-    gap: 12,
-  },
-  claimButton: {
-    marginTop: 6,
-    padding: "10px 18px",
-    borderRadius: 8,
-    border: "none",
-    background: "#e9d6b8",
-    color: "#111",
-    cursor: "pointer",
-    fontWeight: 600,
-  },
-  address: {
-    color: "#cfcfcf",
-    fontSize: 13,
-  },
+    // 6) success UI
+    alert("⚜️FLAME CLAIMED⚜️ — check your wallet and the token page.");
+  } catch (err) {
+    console.error("Claim error:", err);
+    const msg = err?.message || String(err) || "Unknown error";
+    alert("Claim failed: " + msg);
+  }
 };
