@@ -51,44 +51,47 @@ function ClaimNFT() {
     address: CONTRACT_ADDRESS,
   });
   
+// replace existing handleClaim function with this block
 const handleClaim = async () => {
+  if (!account) {
+    alert("Please connect your wallet first.");
+    return;
+  }
+
   try {
-    if (!window?.ethereum) {
-      alert("No Web3 wallet found (MetaMask).");
-      return;
-    }
-    if (!account) {
-      alert("Please connect your wallet first.");
+    // ensure browser wallet is available
+    if (typeof window === "undefined" || !window.ethereum) {
+      alert("No wallet detected — please install MetaMask or another wallet.");
       return;
     }
 
-    // minimal ABI for claimTo(address,uint256,uint256)
-    const ABI = [
-      "function claimTo(address to, uint256 tokenId, uint256 quantity) external",
-    ];
+    // Ethers v6: create a BrowserProvider from window.ethereum and request accounts
+    const browserProvider = new ethers.BrowserProvider(window.ethereum);
+    await browserProvider.send("eth_requestAccounts", []);
+    const signer = await browserProvider.getSigner();
 
-    // ensure token id as BigInt / string
-    const tokenId = typeof TOKEN_ID === "bigint" ? TOKEN_ID : BigInt(TOKEN_ID || 0);
+    // get a contract instance from the same client used by _app.js (async)
+    const contract = await client.getContract(CONTRACT_ADDRESS);
 
-    // request accounts and create signer
-    const provider = new ethers.providers.Web3Provider(window.ethereum, "any");
-    await provider.send("eth_requestAccounts", []);
-    const signer = provider.getSigner();
+    // if the contract wrapper needs a signer connection, connect it (safe)
+    // many thirdweb contract wrappers accept a connected signer; this ensures txs are signed
+    if (typeof contract.connect === "function") {
+      contract.connect(signer);
+    }
 
-    // create contract instance with signer (this will use the connected wallet)
-    const signerContract = new ethers.Contract(CONTRACT_ADDRESS, ABI, signer);
+    // perform the on-chain claim using the official helper
+    await claimTo({
+      contract,
+      to: account.address,
+      tokenId: TOKEN_ID,
+      quantity: 1n,
+    });
 
-    // send transaction -> this will open the wallet popup
-    const tx = await signerContract.claimTo(await signer.getAddress(), tokenId, 1);
-    console.log("tx sent:", tx.hash);
-
-    // wait for confirmation (optional but ensures mint finished)
-    await tx.wait();
-    console.log("tx confirmed:", tx.hash);
-    alert("🔥 THE FIRST FLAME HAS BEEN CLAIMED (on-chain) 🔥");
+    alert("Claim successful 🎉");
   } catch (err) {
-    console.error("Claim error (ethers):", err);
-    alert("Claim failed: " + (err?.message || String(err)));
+    console.error("Claim error:", err);
+    const msg = err && err.message ? err.message : String(err);
+    alert("Claim failed: " + msg);
   }
 };
 
