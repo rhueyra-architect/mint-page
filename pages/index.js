@@ -49,12 +49,13 @@ function ClaimNFT() {
   });
 
   const handleClaim = async () => {
+    try {
     if (!account) {
-      alert("Please connect your wallet first.");
+      alert("Connect your wallet first.");
       return;
     }
 
-      try {
+  
       await claimTo({
         contract,
         to: account.address,
