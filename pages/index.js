@@ -31,7 +31,7 @@ export default function Home() {
   return (
     <main style={styles.page}>
       <div style={styles.container}>
-        <h1 style={styles.title}>🔱CLAIM THE FLAME</h1>
+        <h1 style={styles.title}>🔱 CLAIM THE FLAME</h1>
         <ClaimNFT />
       </div>
     </main>
@@ -53,7 +53,13 @@ function ClaimNFT() {
       alert("Please connect your wallet first.");
       return;
     }
-    try {
+   
+  try {
+  if (!contract) {
+    alert("Contract not loaded");
+    return;
+  }
+
       // claim 1 token to the connected account
       await claimTo({
         contract,
@@ -62,7 +68,7 @@ function ClaimNFT() {
         quantity: 1n,
       });
 
-      alert("Claim successful 🎉");
+      alert("⚜️ THE FIRST FLAME CLAIMED ⚜️");
     } catch (err) {
       console.error("Claim error:", err);
       // try to show meaningful message
