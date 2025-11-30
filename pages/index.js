@@ -1,8 +1,9 @@
 // pages/index.js
 import React from "react";
-import { ConnectButton, useActiveAccount, useSDK } from "thirdweb/react";
+import { ConnectButton, useActiveAccount } from "thirdweb/react";
 import { createThirdwebClient } from "thirdweb";
 import { claimTo } from "thirdweb/extensions/erc1155";
+import { baseSepolia } from "thirdweb/chains";
 
 /**
  * Client created from the clientId saved in env.
@@ -39,7 +40,13 @@ export default function Home() {
 
 function ClaimNFT() {
   const account = useActiveAccount();
-  const sdk = useSDK();
+
+  // load contract
+  const contract = getContract({
+    client,
+    chain: baseSepolia,
+    address: CONTRACT_ADDRESS,
+  });
 
   const handleClaim = async () => {
     if (!account) {
@@ -47,25 +54,7 @@ function ClaimNFT() {
       return;
     }
 
-    try {
-      if (!sdk) {
-        alert("SDK not ready. Try again in a moment.");
-        return;
-      }
-
-      if (!CONTRACT_ADDRESS || CONTRACT_ADDRESS === "0x5c07a4D80201Dc565681ffA420962DE8De06f77F") {
-        alert("Contract address not set. Add NEXT_PUBLIC_CONTRACT_ADDRESS to your env.");
-        return;
-      }
-
-      // get contract using the SDK (this returns a contract object usable by claimTo)
-      const contract = await sdk.getContract(CONTRACT_ADDRESS);
-      if (!contract) {
-        alert("Could not load contract.");
-        return;
-      }
-
-      // REAL MINT TRANSACTION
+      try {
       await claimTo({
         contract,
         to: account.address,
@@ -76,8 +65,7 @@ function ClaimNFT() {
       alert("⚜️ FLAME CLAIMED ⚜️");
     } catch (err) {
       console.error("Claim error:", err);
-      const msg = err && err.message ? err.message : String(err);
-      alert("Claim failed — check console. " + msg);
+      alert("Claim failed: " + (err?.message || String(err)));
     }
   };
 
