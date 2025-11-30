@@ -49,34 +49,45 @@ function ClaimNFT() {
     chain: baseSepolia,
     address: CONTRACT_ADDRESS,
   });
-
-  const handleClaim = async () => {
+  
+const handleClaim = async () => {
+  try {
     if (!account) {
       alert("Connect your wallet first.");
       return;
     }
 
-    try {
-      if (!contract) {
-        alert("Contract not loaded");
-        return;
-      }
-
-      // REAL MINT TRANSACTION — claim 1 token to the connected account
-      await claimTo({
-        contract,
-        to: account.address,
-        tokenId: TOKEN_ID,
-        quantity: 1n,
-      });
-
-      alert("Claim successful 🎉");
-    } catch (err) {
-      console.error("Claim error:", err);
-      const msg = err && err.message ? err.message : String(err);
-      alert("Claim failed — check console. " + msg);
+    if (!client) {
+      alert("Client not initialized.");
+      return;
     }
-  };
+
+    // get a live contract instance client-side (ensures it's available and not SSR)
+    const liveContract = await client.getContract(CONTRACT_ADDRESS);
+    if (!liveContract) {
+      alert("Unable to load contract. Check CONTRACT_ADDRESS env.");
+      return;
+    }
+
+    // ensure token id is BigInt
+    const tokenIdToClaim = typeof TOKEN_ID === "bigint" ? TOKEN_ID : BigInt(TOKEN_ID);
+
+    // THIS triggers the wallet popup and sends the transaction
+    const tx = await claimTo({
+      contract: liveContract,
+      to: account.address,
+      tokenId: tokenIdToClaim,
+      quantity: 1n,
+    });
+
+    console.log("claim tx:", tx);
+    alert("🔥 THE FIRST FLAME HAS BEEN CLAIMED 🔥");
+  } catch (err) {
+    console.error("Claim error:", err);
+    alert("Claim failed: " + (err?.message || String(err)));
+  }
+};
+
 
   return (
     <div style={styles.claimBox}>
