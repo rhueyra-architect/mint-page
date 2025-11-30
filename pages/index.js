@@ -51,7 +51,7 @@ function ClaimNFT() {
     address: CONTRACT_ADDRESS,
   });
   
-// replace existing handleClaim function with this block
+// Replace your existing handleClaim with this exact block (inside ClaimNFT)
 const handleClaim = async () => {
   if (!account) {
     alert("Please connect your wallet first.");
@@ -59,33 +59,31 @@ const handleClaim = async () => {
   }
 
   try {
-    // ensure browser wallet is available
     if (typeof window === "undefined" || !window.ethereum) {
-      alert("No wallet detected — please install MetaMask or another wallet.");
+      alert("No browser wallet found — install MetaMask or similar.");
       return;
     }
 
-    // Ethers v6: create a BrowserProvider from window.ethereum and request accounts
-    const browserProvider = new ethers.BrowserProvider(window.ethereum);
-    await browserProvider.send("eth_requestAccounts", []);
-    const signer = await browserProvider.getSigner();
+    // request accounts / wallet popup
+    const provider = new ethers.providers.Web3Provider(window.ethereum);
+    await provider.send("eth_requestAccounts", []);
 
-    // get a contract instance from the same client used by _app.js (async)
-    const contract = await client.getContract(CONTRACT_ADDRESS);
+    const signer = provider.getSigner();
 
-    // if the contract wrapper needs a signer connection, connect it (safe)
-    // many thirdweb contract wrappers accept a connected signer; this ensures txs are signed
-    if (typeof contract.connect === "function") {
-      contract.connect(signer);
-    }
+    // Minimal ABI that includes the claimTo function used by Edition Drop
+    const ABI = [
+      "function claimTo(address _to, uint256 _tokenId, uint256 _quantity) external"
+    ];
 
-    // perform the on-chain claim using the official helper
-    await claimTo({
-      contract,
-      to: account.address,
-      tokenId: TOKEN_ID,
-      quantity: 1n,
-    });
+    // create contract instance connected to signer (will prompt tx)
+    const contract = new ethers.Contract(CONTRACT_ADDRESS, ABI, signer);
+
+    // call contract - TOKEN_ID must be a number/BigInt convertible (we pass as Number)
+    const tokenIdNum = Number(TOKEN_ID); // ensure numeric tokenId
+    const tx = await contract.claimTo(account.address, tokenIdNum, 1);
+
+    // optional: wait for confirmation
+    await tx.wait();
 
     alert("Claim successful 🎉");
   } catch (err) {
@@ -94,7 +92,6 @@ const handleClaim = async () => {
     alert("Claim failed: " + msg);
   }
 };
-
   return (
     <div style={styles.claimBox}>
       <div style={{ marginBottom: 18 }}>
