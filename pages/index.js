@@ -53,26 +53,31 @@ function ClaimNFT() {
 const handleClaim = async () => {
   try {
     if (!account) {
-      alert("Connect your wallet first.");
+      alert("Please connect your wallet first.");
       return;
     }
 
+    // ensure client is available
     if (!client) {
       alert("Client not initialized.");
       return;
     }
 
-    // get a live contract instance client-side (ensures it's available and not SSR)
-    const liveContract = await client.getContract(CONTRACT_ADDRESS);
+    // get contract using the standalone helper (not client.getContract)
+    const liveContract = await getContract({
+      client,
+      chain: baseSepolia,
+      address: CONTRACT_ADDRESS,
+    });
+
     if (!liveContract) {
       alert("Unable to load contract. Check CONTRACT_ADDRESS env.");
       return;
     }
 
-    // ensure token id is BigInt
     const tokenIdToClaim = typeof TOKEN_ID === "bigint" ? TOKEN_ID : BigInt(TOKEN_ID);
 
-    // THIS triggers the wallet popup and sends the transaction
+    // trigger on-chain claim (wallet popup -> tx)
     const tx = await claimTo({
       contract: liveContract,
       to: account.address,
