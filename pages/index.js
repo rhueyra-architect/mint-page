@@ -1,4 +1,6 @@
-// pages/index.js
+// File: pages/index.js
+// Replace the entire pages/index.js with this exact code.
+
 import React from "react";
 import { ConnectButton, useActiveAccount } from "thirdweb/react";
 import { createThirdwebClient, getContract } from "thirdweb";
@@ -31,7 +33,7 @@ export default function Home() {
   return (
     <main style={styles.page}>
       <div style={styles.container}>
-        <h1 style={styles.title}>🔱CLAIM THE FLAME</h1>
+        <h1 style={styles.title}>CLAIM THE FLAME</h1>
         <ClaimNFT />
       </div>
     </main>
@@ -41,23 +43,26 @@ export default function Home() {
 function ClaimNFT() {
   const account = useActiveAccount();
 
- 
+  // get a contract handle (uses same client that _app.js provided)
+  const contract = getContract({
+    client,
+    chain: baseSepolia,
+    address: CONTRACT_ADDRESS,
   });
 
   const handleClaim = async () => {
-    try {
     if (!account) {
       alert("Connect your wallet first.");
       return;
     }
 
-       const contract = await getContract({
-    client,
-    chain: baseSepolia,
-    address: CONTRACT_ADDRESS,
-       });
-        
-  
+    try {
+      if (!contract) {
+        alert("Contract not loaded");
+        return;
+      }
+
+      // REAL MINT TRANSACTION — claim 1 token to the connected account
       await claimTo({
         contract,
         to: account.address,
@@ -65,10 +70,11 @@ function ClaimNFT() {
         quantity: 1n,
       });
 
-      alert("⚜️ FLAME CLAIMED ⚜️");
+      alert("Claim successful 🎉");
     } catch (err) {
       console.error("Claim error:", err);
-      alert("Claim failed: " + (err?.message || String(err)));
+      const msg = err && err.message ? err.message : String(err);
+      alert("Claim failed — check console. " + msg);
     }
   };
 
@@ -100,7 +106,7 @@ function shorten(addr = "") {
   return addr.slice(0, 6) + "…" + addr.slice(-4);
 }
 
-/* Minimal inline styles (feel free to replace with your globals.css) */
+/* Minimal inline styles */
 const styles = {
   page: {
     minHeight: "100vh",
