@@ -1,7 +1,7 @@
 // pages/index.js
 import React from "react";
 import { ConnectButton, useActiveAccount } from "thirdweb/react";
-import { createThirdwebClient } from "thirdweb";
+import { createThirdwebClient, getContract } from "thirdweb";
 import { claimTo } from "thirdweb/extensions/erc1155";
 import { baseSepolia } from "thirdweb/chains";
 
