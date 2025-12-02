@@ -1,0 +1,90 @@
+@tailwind base;
+@tailwind components;
+@tailwind utilities;
+
+:root {
+  --foreground-rgb: 233, 230, 226; /* warm off-white */
+  --background-start-rgb: 0, 0, 0; /* black */
+  --background-end-rgb: 0, 0, 0;   /* black */
+}
+
+@media (prefers-color-scheme: dark) {
+  :root {
+    --foreground-rgb: 255, 255, 255;
+    --background-start-rgb: 0, 0, 0;
+    --background-end-rgb: 0, 0, 0;
+  }
+}
+
+@layer utilities {
+  .text-balance {
+    text-wrap: balance;
+  }
+}
+
+@layer base {
+  :root {
+    --background: 0 0% 0%;          /* pure black */
+    --foreground: 36 15% 92%;       /* warm off-white (#E9E6E2) */
+    --card: 0 0% 6%;                /* #0f0f0f */
+    --card-foreground: 36 15% 92%;
+    --popover: 0 0% 6%;
+    --popover-foreground: 36 15% 92%;
+    --primary: 38 38% 68%;          /* gold tone */
+    --primary-foreground: 0 0% 0%;
+    --secondary: 0 0% 10%;
+    --secondary-foreground: 36 15% 92%;
+    --muted: 0 0% 13%;
+    --muted-foreground: 0 0% 60%;
+    --accent: 38 38% 68%;
+    --accent-foreground: 0 0% 0%;
+    --destructive: 0 62.8% 30.6%;
+    --destructive-foreground: 0 0% 98%;
+    --border: 0 0% 13%;
+    --input: 0 0% 13%;
+    --ring: 0 0% 40%;
+    --chart-1: 38 38% 68%;    /* gold */
+    --chart-2: 38 28% 52%;
+    --chart-3: 38 20% 36%;
+    --chart-4: 38 16% 24%;
+    --chart-5: 38 12% 16%;
+    --radius: 0.5rem;
+  }
+  
+    .dark {
+    --background: 0 0% 0%;         /* true black */
+    --foreground: 36 15% 92%;      /* warm off-white */
+    --card: 0 0% 6%;
+    --card-foreground: 36 15% 92%;
+    --popover: 0 0% 6%;
+    --popover-foreground: 36 15% 92%;
+    --primary: 38 38% 68%;
+    --primary-foreground: 0 0% 0%;
+    --secondary: 0 0% 10%;
+    --secondary-foreground: 36 15% 92%;
+    --muted: 0 0% 13%;
+    --muted-foreground: 0 0% 60%;
+    --accent: 38 38% 68%;
+    --accent-foreground: 0 0% 0%;
+    --destructive: 0 62.8% 30.6%;
+    --destructive-foreground: 0 0% 98%;
+    --border: 0 0% 13%;
+    --input: 0 0% 13%;
+    --ring: 0 0% 40%;
+    --chart-1: 38 38% 68%;
+    --chart-2: 38 28% 52%;
+    --chart-3: 38 20% 36%;
+    --chart-4: 38 16% 24%;
+    --chart-5: 38 12% 16%;
+  }
+  
+}
+
+@layer base {
+  * {
+    @apply border-border;
+  }
+  body {
+    @apply bg-background text-foreground;
+  }
+}
