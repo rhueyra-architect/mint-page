@@ -27,6 +27,19 @@ type UseNftDataReturn = {
   refetch: () => void;
 };
 
+/**
+ * Small typed shape for information returned by the helper functions.
+ * All fields are optional because different ERC helpers may return slightly
+ * different structures. We then use fallbacks when building the NftData.
+ */
+type ContractInfo = {
+  displayName?: string;
+  description?: string;
+  pricePerToken?: number | null;
+  contractImage?: string;
+  currencySymbol?: string;
+};
+
 export function useNftData(): UseNftDataReturn {
   const [data, setData] = useState<NftData | null>(null);
   const [loading, setLoading] = useState(true);
@@ -43,19 +56,23 @@ export function useNftData(): UseNftDataReturn {
         isERC1155({ contract }).catch(() => false),
       ]);
 
-      const ercType = isErc1155 ? "ERC1155" : isErc721 ? "ERC721" : "ERC20";
+      const ercType: "ERC20" | "ERC721" | "ERC1155" = isErc1155
+        ? "ERC1155"
+        : isErc721
+        ? "ERC721"
+        : "ERC20";
 
       // Fetch contract information based on ERC type
-      let info;
+      let info: ContractInfo | null = null;
       switch (ercType) {
         case "ERC20":
-          info = await getERC20Info(contract);
+          info = (await getERC20Info(contract)) as ContractInfo;
           break;
         case "ERC721":
-          info = await getERC721Info(contract);
+          info = (await getERC721Info(contract)) as ContractInfo;
           break;
         case "ERC1155":
-          info = await getERC1155Info(contract);
+          info = (await getERC1155Info(contract)) as ContractInfo;
           break;
         default:
           throw new Error("Unknown ERC type.");
@@ -68,7 +85,8 @@ export function useNftData(): UseNftDataReturn {
       setData({
         displayName: info.displayName || "",
         description: info.description || "",
-        pricePerToken: info.pricePerToken || 0,
+        pricePerToken:
+          typeof info.pricePerToken === "number" ? info.pricePerToken : 0,
         contractImage: info.contractImage || "",
         currencySymbol: info.currencySymbol || "",
         isERC1155: ercType === "ERC1155",
