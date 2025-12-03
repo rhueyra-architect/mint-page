@@ -12,7 +12,6 @@ import { useTheme } from "next-themes";
 import type { ThirdwebContract } from "thirdweb";
 import {
 	ClaimButton,
-	ConnectButton,
 	MediaRenderer,
 	NFTProvider,
 	NFTMedia,
@@ -68,9 +67,6 @@ export function NftMint(props: Props) {
 	}
 	return (
 		<div className="flex flex-col items-center justify-center min-h-screen bg-gray-100 dark:bg-gray-900 transition-colors duration-200">
-			<div className="absolute top-4 right-4">
-				<ConnectButton client={client} />
-			</div>
 			<Card className="w-full max-w-md">
 				<CardContent className="pt-6">
 					<div className="aspect-square overflow-hidden rounded-lg mb-4 relative">
@@ -207,12 +203,7 @@ export function NftMint(props: Props) {
 						>
 							Mint {quantity} NFT{quantity > 1 ? "s" : ""}
 						</ClaimButton>
-					) : (
-						<ConnectButton
-							client={client}
-							connectButton={{ style: { width: "100%" } }}
-						/>
-					)}
+					) : null}
 				</CardFooter>
 			</Card>
 			{true && (
