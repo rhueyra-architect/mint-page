@@ -204,8 +204,7 @@ export function NftMint(props: Props) {
 						>
 							Mint {quantity} NFT{quantity > 1 ? "s" : ""}
 						</ClaimButton>
-					) : (
-			{/* ConnectButton moved to layout.tsx (global top-right) */}
+					) : null}
 					)}
 				</CardFooter>
 			</Card>
