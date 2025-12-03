@@ -4,6 +4,8 @@ import "./globals.css";
 import { ThirdwebProvider } from "thirdweb/react";
 import { Toaster } from "sonner";
 import { ToastProvider } from "@/components/ui/toast";
+import { ConnectButton } from "thirdweb/react";
+import { client } from "@/lib/thirdwebClient";
 
 const inter = Inter({ subsets: ["latin"] });
 
@@ -22,6 +24,12 @@ export default function RootLayout({
 			<body className={inter.className}>
 				<ToastProvider>
 					<Toaster position="bottom-center" />
+
+					{/* GLOBAL connect bubble - top-right, clickable and always visible */}
+					<div className="fixed top-4 right-4 z-50">
+					  <ConnectButton client={client} />
+					</div>
+					
 					<ThirdwebProvider>{children}</ThirdwebProvider>
 				</ToastProvider>
 			</body>
