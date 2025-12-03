@@ -205,7 +205,7 @@ export function NftMint(props: Props) {
 							Mint {quantity} NFT{quantity > 1 ? "s" : ""}
 						</ClaimButton>
 					) : null}
-					)}
+				
 				</CardFooter>
 			</Card>
 			{true && (
