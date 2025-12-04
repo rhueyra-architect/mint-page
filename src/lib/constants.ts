@@ -1,5 +1,5 @@
 import { defineChain, getContract } from "thirdweb";
-import { client } from "@/lib/thirdwebClient";
+
 
 /**
  * Change this to the contract address of your NFT collection
