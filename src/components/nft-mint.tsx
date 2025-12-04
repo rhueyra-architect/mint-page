@@ -17,7 +17,7 @@ import {
 	NFTMedia,
 	useActiveAccount,
 } from "thirdweb/react";
-import { client } from "@/lib/thirdwebClient";
+
 import React from "react";
 import { toast } from "sonner";
 import { Skeleton } from "./ui/skeleton";
