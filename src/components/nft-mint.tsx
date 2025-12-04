@@ -81,7 +81,7 @@ export function NftMint(props: Props) {
 
 						) : (
 							<MediaRenderer
-								client={client}
+							
 								className="w-full h-full object-cover"
 								alt=""
 								src={
