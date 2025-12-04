@@ -6,7 +6,9 @@ import { Toaster } from "sonner";
 import { ToastProvider } from "@/components/ui/toast";
 import { ConnectButton } from "thirdweb/react";
 import { client } from "@/lib/thirdwebClient";
+import { QueryClient, QueryClientProvider } from '@tanstack/react-query';
 
+const queryClient = new QueryClient();
 const inter = Inter({ subsets: ["latin"] });
 
 export const metadata: Metadata = {
@@ -22,6 +24,7 @@ export default function RootLayout({
 	return (
 		<html lang="en">
 			<body className={inter.className}>
+				<QueryClientProvider client={queryClient}>
 				<ToastProvider>
 					<Toaster position="bottom-center" />
 
@@ -32,6 +35,7 @@ export default function RootLayout({
 					
 					<ThirdwebProvider>{children}</ThirdwebProvider>
 				</ToastProvider>
+				</QueryClientProvider>
 			</body>
 		</html>
 	);
