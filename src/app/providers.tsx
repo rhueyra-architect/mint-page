@@ -1,17 +1,19 @@
 "use client";
 
+import React, { useRef } from "react";
 import { QueryClient, QueryClientProvider } from "@tanstack/react-query";
 import { ThirdwebProvider } from "thirdweb/react";
 import { ToastProvider } from "@/components/ui/toast";
-import { client } from "@/lib/thirdwebClient";
 
-const queryClient = new QueryClient();
+
+const queryClientRef = useRef<QueryClient>();
+if (!queryClientRef.current) queryClientRef.current = new QueryClient();
 
 export default function Providers({ children }: { children: React.ReactNode }) {
   return (
-    <QueryClientProvider client={queryClient}>
+    <QueryClientProvider client={queryClientRef.current}>
       <ToastProvider>
-      <ThirdwebProvider client={client}>{children}</ThirdwebProvider>
+        <ThirdwebProvider activeChain="base-sepolia">{children}</ThirdwebProvider>
       </ToastProvider>
     </QueryClientProvider>
   );
