@@ -3,7 +3,6 @@ import { Inter } from "next/font/google";
 import "./globals.css";
 import { Toaster } from "sonner";
 import { ConnectButton } from "thirdweb/react";
-import { client } from "@/lib/thirdwebClient";
 import Providers from "./providers";   
 
 const inter = Inter({ subsets: ["latin"] });
