@@ -3,7 +3,6 @@ import { getActiveClaimCondition } from "thirdweb/extensions/erc721";
 import { getContractMetadata } from "thirdweb/extensions/common";
 import { defaultChain } from "@/lib/constants";
 import { getContract } from "thirdweb";
-import { client } from "@/lib/thirdwebClient";
 import { getCurrencyMetadata } from "thirdweb/extensions/erc20";
 
 export async function getERC721Info(contract: ThirdwebContract) {

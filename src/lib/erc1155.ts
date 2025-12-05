@@ -2,7 +2,6 @@ import { ThirdwebContract, toTokens } from "thirdweb";
 import { getActiveClaimCondition, getNFT } from "thirdweb/extensions/erc1155";
 import { defaultTokenId, defaultChain } from "@/lib/constants";
 import { getContract } from "thirdweb";
-import { client } from "@/lib/thirdwebClient";
 import { getCurrencyMetadata } from "thirdweb/extensions/erc20";
 
 export async function getERC1155Info(contract: ThirdwebContract) {

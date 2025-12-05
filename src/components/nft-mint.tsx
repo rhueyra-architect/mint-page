@@ -17,7 +17,6 @@ import {
 	NFTMedia,
 	useActiveAccount,
 } from "thirdweb/react";
-import { client } from "@/lib/thirdwebClient";
 import React from "react";
 import { toast } from "sonner";
 import { Skeleton } from "./ui/skeleton";
@@ -81,7 +80,7 @@ export function NftMint(props: Props) {
 
 						) : (
 							<MediaRenderer
-								client={client}
+
 								className="w-full h-full object-cover"
 								alt=""
 								src={

@@ -3,7 +3,6 @@ import { Inter } from "next/font/google";
 import "./globals.css";
 import { Toaster } from "sonner";
 import { ConnectButton } from "thirdweb/react";
-import { client } from "@/lib/thirdwebClient";
 import Providers from "./providers";   
 
 const inter = Inter({ subsets: ["latin"] });
@@ -25,7 +24,7 @@ export default function RootLayout({
           <Toaster position="bottom-center" />
 
           <div className="fixed top-4 right-4 z-50">
-            <ConnectButton client={client} />
+            <ConnectButton />
           </div>
 
           {children}
