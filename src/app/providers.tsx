@@ -2,7 +2,7 @@
 
 import React, { useRef } from "react";
 import { QueryClient, QueryClientProvider } from "@tanstack/react-query";
-import { ThirdwebProvider } from "thirdweb/react";
+import { ThirdwebProvider } from "@thirdweb-dev/react";
 import { ToastProvider } from "@/components/ui/toast";
 
 
