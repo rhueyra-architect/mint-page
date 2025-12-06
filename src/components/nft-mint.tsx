@@ -16,7 +16,7 @@ import {
 	NFTProvider,
 	NFTMedia,
 	useActiveAccount,
-} from "thirdweb/react";
+} from "@thirdweb-dev/react";
 
 import React from "react";
 import { toast } from "sonner";
